@@ -1,4 +1,4 @@
-[![Build Status](https://github.com/JunnanLi/FL-M32_Runtime.git)]
+
 
 # FengLin M32 (FL-M32) SoC Runtime
 
