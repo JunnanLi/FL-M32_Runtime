@@ -14,23 +14,22 @@ functions to simplify C-based development.
     
     Modified in [Makefile.sys](https://github.com/JunnanLi/FL-M32_Runtime/Firmware_SingleCore_Runtime/Makefile.sys).
            
-           RAM_SIZE_KB     = 256 #default                                 
-           RAM_SIZE        = $(shell expr $(RAM_SIZE_KB) \* 256)
-           INSTR_BASE_ADDR = 0
-           INSTR_LEN       = $(shell expr $(RAM_SIZE_KB) \* 128)
-           DATA_BASE_ADDR  = $(INSTR_LEN)
-           DATA_LEN        = $(INSTR_LEN)
+       RAM_SIZE_KB     = 256 #default                                 
+       RAM_SIZE        = $(shell expr $(RAM_SIZE_KB) \* 256)
+       INSTR_BASE_ADDR = 0
+       INSTR_LEN       = $(shell expr $(RAM_SIZE_KB) \* 128)
+       DATA_BASE_ADDR  = $(INSTR_LEN)
+       DATA_LEN        = $(INSTR_LEN)
 
     ORIGIN and LENGTH (in [link.ld](https://github.com/JunnanLi/FL-M32_Runtime/Firmware_SingleCore_Runtime/link/link.ld)) are auto-configured by Makefile 
     
-           ram (rwxai) : ORIGIN = 0x00000000, LENGTH = 0x10000
-       ram_data (rwxai) : ORIGIN = 0x00010000, LENGTH = 0x10000
+             ram (rwxai) : ORIGIN = 0x00000000, LENGTH = 0x10000
+        ram_data (rwxai) : ORIGIN = 0x00010000, LENGTH = 0x10000
 
     So, you can use makefile with "make RAM_SIZE_KB=128" for 128KB Memory;
 
-* 2023/3/22：fix the difination of 32b irq_bitmap;
+* 2023/3/22：fix the difination of 32b irq_bitmap, i.e.,
 
-       i.e.,                                                           
            `define TIME_IRQ      7
            `define UART_IRQ      16  
            `define GPIO_IRQ      17  
