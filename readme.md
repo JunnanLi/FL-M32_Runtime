@@ -21,7 +21,7 @@ functions to simplify C-based development.
            DATA_BASE_ADDR  = $(INSTR_LEN)
            DATA_LEN        = $(INSTR_LEN)
 
-    ORIGIN and LENGTH are auto-configured by Makefile in [link.ld](https://github.com/JunnanLi/FL-M32_Runtime/Firmware_SingleCore_Runtime/link/link.ld)
+    ORIGIN and LENGTH (in [link.ld](https://github.com/JunnanLi/FL-M32_Runtime/Firmware_SingleCore_Runtime/link/link.ld)) are auto-configured by Makefile 
     
            ram (rwxai) : ORIGIN = 0x00000000, LENGTH = 0x10000
        ram_data (rwxai) : ORIGIN = 0x00010000, LENGTH = 0x10000
