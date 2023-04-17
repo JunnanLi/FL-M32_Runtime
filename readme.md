@@ -11,6 +11,7 @@ functions to simplify C-based development.
     which used to calculate RAM_SIZE, INSTR_LEN, DATA_BASE_ADDR and 
     DATA_LEN; RAM_SIZE is lines of firmware.hex, while {INSTR_LEN,...} are
     used to reconfigure memory size in link/link.ld;
+    
         Modified in [Makefile.sys](https://github.com/JunnanLi/FL-M32_Runtime/Firmware_SingleCore_Runtime/Makefile.sys).
            RAM_SIZE_KB     = 256 #default                                 
            RAM_SIZE        = $(shell expr $(RAM_SIZE_KB) \* 256)
