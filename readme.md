@@ -7,12 +7,12 @@ FL-M32_Runtime is the runtime environment for FL-M32 SoC, and has implemented so
 functions to simplify C-based development.
 
 ## modification list：
-* 1) 2023/3/22：add RAM_SIZE_KB at Firmware_SingleCore_Runtime/Makefile.sys,
+* 2023/3/22：add RAM_SIZE_KB at Firmware_SingleCore_Runtime/Makefile.sys,
     which used to calculate RAM_SIZE, INSTR_LEN, DATA_BASE_ADDR and 
     DATA_LEN; RAM_SIZE is lines of firmware.hex, while {INSTR_LEN,...} are
     used to reconfigure memory size in link/link.ld;
 
-       i.e.,                                                           
+                                                           
            RAM_SIZE_KB     = 256 #default                                 
            RAM_SIZE 	    = $(shell expr $(RAM_SIZE_KB) \* 256)
            INSTR_BASE_ADDR = 0
@@ -20,7 +20,6 @@ functions to simplify C-based development.
            DATA_BASE_ADDR  = $(INSTR_LEN)
            DATA_LEN        = $(INSTR_LEN)
 
-       i.e.,
            ram (rwxai) : ORIGIN = 0x00000000, LENGTH = 0x10000
        ram_data (rwxai) : ORIGIN = 0x00010000, LENGTH = 0x10000
 
