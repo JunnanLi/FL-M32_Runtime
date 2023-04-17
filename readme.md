@@ -28,37 +28,36 @@ functions to simplify C-based development.
 
     So, you can use makefile with "make RAM_SIZE_KB=128" for 128KB Memory;
 
-* 2023/3/22：fix the difination of 32b irq_bitmap, i.e.,
+* 2023/3/22：fix the difination of 32b irq_bitmap (in global_head.v), i.e.,
 
-           `define TIME_IRQ      7
-           `define UART_IRQ      16  
-           `define GPIO_IRQ      17  
-           `define SPI_IRQ       18  
-           `define CSR_IRQ       19  
-           `define CSRAM_IRQ     20  
-           `define dDMA_IRQ      21  
-           `define DMA_IRQ       22  
-           `define DRA_IRQ       23 
+       `define TIME_IRQ      7
+       `define UART_IRQ      16  
+       `define GPIO_IRQ      17  
+       `define SPI_IRQ       18  
+       `define CSR_IRQ       19  
+       `define CSRAM_IRQ     20  
+       `define dDMA_IRQ      21  
+       `define DMA_IRQ       22  
+       `define DRA_IRQ       23 
 
 
 * 2023/3/25：add TIMER_IRQ_PROC_IN_ASM at Firmware_SingleCore_Runtime/     
     Makefile.sys, which used to compile timer irq processing writen in asm;
     add DRA_IRQ_PROC_IN_ASM at Firmware_SingleCore_Runtime/Makefile.sys,      
     which used to compile dma irq processing writen in asm;
-
-       i.e.,                                                           
-           TIMER_IRQ_PROC_IN_ASM   = 0
-           DMA_IRQ_PROC_IN_ASM     = 0
-           ifeq ("$(TIMER_IRQ_PROC_IN_ASM)", "1")
-               TIMER_IRQ_IN_ASM    = -DTIMER_IRQ_IN_ASM=1
-           else
-               TIMER_IRQ_IN_ASM    = -DTIMER_IRQ_IN_ASM=0
-           endif
-           ifeq ("$(DMA_IRQ_PROC_IN_ASM)", "1")
-               DMA_IRQ_IN_ASM      = -DDMA_IRQ_IN_ASM=1
-           else
-               DMA_IRQ_IN_ASM      = -DDMA_IRQ_IN_ASM=0
-           endif
+                                                         
+       TIMER_IRQ_PROC_IN_ASM   = 0
+       DMA_IRQ_PROC_IN_ASM     = 0
+       ifeq ("$(TIMER_IRQ_PROC_IN_ASM)", "1")
+           TIMER_IRQ_IN_ASM    = -DTIMER_IRQ_IN_ASM=1
+       else
+           TIMER_IRQ_IN_ASM    = -DTIMER_IRQ_IN_ASM=0
+       endif
+       ifeq ("$(DMA_IRQ_PROC_IN_ASM)", "1")
+           DMA_IRQ_IN_ASM      = -DDMA_IRQ_IN_ASM=1
+       else
+           DMA_IRQ_IN_ASM      = -DDMA_IRQ_IN_ASM=0
+       endif
 
     So, you can use makefile with "make TIMER_IRQ_PROC_IN_ASM=1" to choose 
      processing time irq in asm or "make TIMER_IRQ_PROC_IN_ASM=0" to
