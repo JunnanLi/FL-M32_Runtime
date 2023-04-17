@@ -21,7 +21,6 @@ functions to simplify C-based development.
            DATA_BASE_ADDR  = $(INSTR_LEN)
            DATA_LEN        = $(INSTR_LEN)
 
-
     Modified in [link.ld](https://github.com/JunnanLi/FL-M32_Runtime/Firmware_SingleCore_Runtime/link/link.ld)
     
            ram (rwxai) : ORIGIN = 0x00000000, LENGTH = 0x10000
