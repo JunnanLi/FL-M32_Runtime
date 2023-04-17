@@ -41,10 +41,7 @@ functions to simplify C-based development.
        `define DRA_IRQ       23 
 
 
-* 2023/3/25：add TIMER_IRQ_PROC_IN_ASM at Firmware_SingleCore_Runtime/     
-    Makefile.sys, which used to compile timer irq processing writen in asm;
-    add DRA_IRQ_PROC_IN_ASM at Firmware_SingleCore_Runtime/Makefile.sys,      
-    which used to compile dma irq processing writen in asm;
+* 2023/3/25：add TIMER_IRQ_PROC_IN_ASM at [Makefile.sys](https://github.com/JunnanLi/FL-M32_Runtime/Firmware_SingleCore_Runtime/Makefile.sys), which used to compile timer irq processing writen in asm; add DRA_IRQ_PROC_IN_ASM at Firmware_SingleCore_Runtime/Makefile.sys, which used to compile dma irq processing writen in asm;
                                                          
        TIMER_IRQ_PROC_IN_ASM   = 0
        DMA_IRQ_PROC_IN_ASM     = 0
@@ -59,6 +56,4 @@ functions to simplify C-based development.
            DMA_IRQ_IN_ASM      = -DDMA_IRQ_IN_ASM=0
        endif
 
-    So, you can use makefile with "make TIMER_IRQ_PROC_IN_ASM=1" to choose 
-     processing time irq in asm or "make TIMER_IRQ_PROC_IN_ASM=0" to
-     choose processing time irq in c; it is same to DMA_IRQ_PROC_IN_ASM=1;
+    So, you can use makefile with "make TIMER_IRQ_PROC_IN_ASM=1" to choose processing time irq in asm or "make TIMER_IRQ_PROC_IN_ASM=0" to choose processing time irq in c; it is same to DMA_IRQ_PROC_IN_ASM=1;
