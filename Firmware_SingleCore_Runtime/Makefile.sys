@@ -1,0 +1,57 @@
+# SHELL := /bin/bash
+
+## RISCV GCC ENVIRONMENT
+RISCV            	?= $PULP_RISCV_GCC_TOOLCHAIN
+TOOLCHAIN_PREFIX 	= $(RISCV)/bin/riscv32-unknown-elf-
+RUNTIME_PATH 		= ../Firmware_SingleCore_Runtime
+
+## MAKE ENV
+MAKE 		= make
+CCFLAGS 	= -march=rv32imc
+GCC_WARNS  	= -Wall -Wextra -Wshadow -Wundef -Wpointer-arith -Wcast-qual -Wcast-align -Wwrite-strings
+GCC_WARNS 	+= -Wredundant-decls -Wstrict-prototypes -Wmissing-prototypes -pedantic -ffreestanding -nostdlib 
+
+## SRC
+MAIN_SRC 	= ${wildcard $(RUNTIME_PATH)/src/*.c}
+SYSTEM_SRC	= ${wildcard $(RUNTIME_PATH)/src/system/*.c}
+ASM_SRC		= ${wildcard $(RUNTIME_PATH)/src/asm/*.S}
+IRQ_SRC 	= ${wildcard $(RUNTIME_PATH)/src/irq/*.c}
+NETIF_SRC	= ${wildcard $(RUNTIME_PATH)/src/netif/*.c}
+
+## OBJ
+MAIN_OBJS 	= $(patsubst %.c,%.o,$(notdir $(MAIN_SRC)))	
+SYSTEM_OBJS	= $(patsubst %.c,%.o,$(notdir $(SYSTEM_SRC)))
+ASM_OBJS 	= $(patsubst %.S,%.o,$(notdir $(ASM_SRC)))
+IRQ_OBJS 	= $(patsubst %.c,%.o,$(notdir $(IRQ_SRC)))
+NETIF_OBJS 	= $(patsubst %.c,%.o,$(notdir $(NETIF_SRC)))
+
+## DIR
+MAIN_DIR	= $(RUNTIME_PATH)/src
+SYSTEM_DIR	= $(RUNTIME_PATH)/src/system
+ASM_DIR		= $(RUNTIME_PATH)/src/asm
+IRQ_DIR		= $(RUNTIME_PATH)/src/irq
+NETIF_DIR	= $(RUNTIME_PATH)/src/netif
+
+## RAM_SIZE
+RAM_SIZE_KB = 256
+RAM_SIZE 	= $(shell expr $(RAM_SIZE_KB) \* 256)
+
+## INSTR_BASE_ADDR
+INSTR_BASE_ADDR = 0
+INSTR_LEN       = $(shell expr $(RAM_SIZE_KB) \* 128)
+DATA_BASE_ADDR  = $(INSTR_LEN)
+DATA_LEN        = $(INSTR_LEN)
+
+## TIMER_IRQ_IN_ASM, DMA_IRQ_IN_ASM
+TIMER_IRQ_PROC_IN_ASM   = 0
+DMA_IRQ_PROC_IN_ASM     = 0
+ifeq ("$(TIMER_IRQ_PROC_IN_ASM)", "1")
+    TIMER_IRQ_IN_ASM    = -DTIMER_IRQ_IN_ASM=1
+else
+    TIMER_IRQ_IN_ASM    = -DTIMER_IRQ_IN_ASM=0
+endif
+ifeq ("$(DMA_IRQ_PROC_IN_ASM)", "1")
+    DMA_IRQ_IN_ASM      = -DDMA_IRQ_IN_ASM=1
+else
+    DMA_IRQ_IN_ASM      = -DDMA_IRQ_IN_ASM=0
+endif
