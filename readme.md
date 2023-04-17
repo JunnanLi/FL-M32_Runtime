@@ -19,8 +19,9 @@ functions to simplify C-based development.
            INSTR_LEN       = $(shell expr $(RAM_SIZE_KB) \* 128)
            DATA_BASE_ADDR  = $(INSTR_LEN)
            DATA_LEN        = $(INSTR_LEN)
-           
-        Modified in [link.ld](https://github.com/JunnanLi/FL-M32_Runtime/Firmware_SingleCore_Runtime/link/link.ld)
+
+
+    Modified in [link.ld](https://github.com/JunnanLi/FL-M32_Runtime/Firmware_SingleCore_Runtime/link/link.ld)
            ram (rwxai) : ORIGIN = 0x00000000, LENGTH = 0x10000
        ram_data (rwxai) : ORIGIN = 0x00010000, LENGTH = 0x10000
 
