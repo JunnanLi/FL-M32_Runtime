@@ -1,0 +1,6 @@
+[submodule "tests"]
+	path = tests
+	url = https://gitee.com/lixuan-abc/fl-m32_-tests
+[submodule "demos"]
+	path = demos
+	url = https://gitee.com/lixuan-abc/fl-m32_-demo.git
