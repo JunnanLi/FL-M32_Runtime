@@ -1,5 +1,5 @@
 # SHELL := /bin/bash
-RUNTIME_PATH 	= ../../Firmware_SingleCore_Runtime
+RUNTIME_PATH 	= ../../Firmware_Runtime
 MAINFUNC_PATH 	= ./src
 
 include $(RUNTIME_PATH)/Makefile.sys
@@ -36,7 +36,7 @@ firmware: obj/firmware.bin
 		hex/$(addsuffix .bin,$@)
 #	cp hex/firmware.hex /home/lijunnan/share/firmware.hex
 #	cp hex/firmware.bin /home/lijunnan/share/firmware.bin
-	cp hex/firmware.hex ../../../iCore_Controller_new/firmware.hex
+	cp hex/firmware.hex ../../../../FL-M32_Remote_Controller/firmware.hex
 ##############################################################################
 
 ##############################################################################
