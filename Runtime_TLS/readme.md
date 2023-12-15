@@ -14,7 +14,7 @@ FL-M32_runtime是FL-M32 SOC的运行时环境，提供一些基本C开发环境�
     指令/数RAM块大小，即RAM_SIZE，并根据该值计算INSTR_LEN, DATA_BASE_ADDR和
     DATA_LEN，以用于更新链接脚本，即link/link.ld文件；
     
-    [Makefile.sys](https://github.com/JunnanLi/FL-M32_Runtime/tree/main/Runtime_TLS/FirmwareRuntime/Makefile.sys)更新如下：
+    [Makefile.sys](https://github.com/JunnanLi/FL-M32_Runtime/tree/main/Runtime_TLS/Firmware_Runtime/Makefile.sys)更新如下：
            
        RAM_SIZE_KB     = 256 #default                                 
        RAM_SIZE        = $(shell expr $(RAM_SIZE_KB) \* 256)
@@ -23,7 +23,7 @@ FL-M32_runtime是FL-M32 SOC的运行时环境，提供一些基本C开发环境�
        DATA_BASE_ADDR  = $(INSTR_LEN)
        DATA_LEN        = $(INSTR_LEN)
 
-    ORIGIN和LENGTH由Makefile自动更新 ([link.ld](https://github.com/JunnanLi/FL-M32_Runtime/tree/main/Runtime_TLS/FirmwareRuntime/link/link.ld))： 
+    ORIGIN和LENGTH由Makefile自动更新 ([link.ld](https://github.com/JunnanLi/FL-M32_Runtime/tree/main/Runtime_TLS/Firmware_Runtime/link/link.ld))： 
     
              ram (rwxai) : ORIGIN = 0x00000000, LENGTH = 0x10000
         ram_data (rwxai) : ORIGIN = 0x00010000, LENGTH = 0x10000
@@ -43,7 +43,7 @@ FL-M32_runtime是FL-M32 SOC的运行时环境，提供一些基本C开发环境�
        `define DRA_IRQ       23 
 
 
-* 2023/3/25：在[Makefile.sys](https://github.com/JunnanLi/FL-M32_Runtime/tree/main/Runtime_TLS/FirmwareRuntime/Makefile.sys)中增加TIMER_IRQ_PROC_IN_ASM定义, 用于标识是否在中断处理中采用时间中断汇编处理函数；在[Makefile.sys](https://github.com/JunnanLi/FL-M32_Runtime/tree/main/Runtime_TLS/FirmwareRuntime/Makefile.sys)增加DMA_IRQ_PROC_IN_ASM定义, 用于标识是否在DMA中断处理中采用时间中断汇编处理函数；
+* 2023/3/25：在[Makefile.sys](https://github.com/JunnanLi/FL-M32_Runtime/tree/main/Runtime_TLS/Firmware_Runtime/Makefile.sys)中增加TIMER_IRQ_PROC_IN_ASM定义, 用于标识是否在中断处理中采用时间中断汇编处理函数；在[Makefile.sys](https://github.com/JunnanLi/FL-M32_Runtime/tree/main/Runtime_TLS/Firmware_Runtime/Makefile.sys)增加DMA_IRQ_PROC_IN_ASM定义, 用于标识是否在DMA中断处理中采用时间中断汇编处理函数；
                                                          
        TIMER_IRQ_PROC_IN_ASM   = 0
        DMA_IRQ_PROC_IN_ASM     = 0
