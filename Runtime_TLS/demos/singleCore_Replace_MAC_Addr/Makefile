@@ -1,5 +1,5 @@
 # SHELL := /bin/bash
-RUNTIME_PATH 	= ../Firmware_SingleCore_Runtime
+RUNTIME_PATH 	= ../../Firmware_Runtime
 include $(RUNTIME_PATH)/Makefile.sys
 
 ##############################################################################
@@ -13,9 +13,9 @@ MAIN_DIR		= src
 ##############################################################################
 
 FIRMWARE_OBJS 	= $(addprefix obj/, ${MAIN_OBJS} ${SYSTEM_OBJS} $(IRQ_OBJS) \
-					$(NETIF_OBJS) ${ASM_OBJS})
+					$(NETIF_OBJS) ${ASM_OBJS} ${MULTICORE_OBJS})
 VPATH           = ${MAIN_DIR} ${SYSTEM_DIR} $(IRQ_DIR) \
-					$(NETIF_DIR) ${ASM_DIR}
+					$(NETIF_DIR) ${ASM_DIR} $(MULTICORE_DIR)
 INCLUDES		= -I$(RUNTIME_PATH)/src 
 
 all: hex_obj_dir conf_link_ld firmware
@@ -29,27 +29,27 @@ all: hex_obj_dir conf_link_ld firmware
 firmware: obj/firmware.bin
 	python3 $(RUNTIME_PATH)/python_script/makehex.py $< $(RAM_SIZE) \
 		> hex/$(addsuffix .hex,$@)
-	python3 $(RUNTIME_PATH)/python_script/makehex_8files.py $< $(RAM_SIZE) 0\
-		> hex/$(addsuffix _instr_0.hex,$@)
-	python3 $(RUNTIME_PATH)/python_script/makehex_8files.py $< $(RAM_SIZE) 1\
-		> hex/$(addsuffix _instr_1.hex,$@)
-	python3 $(RUNTIME_PATH)/python_script/makehex_8files.py $< $(RAM_SIZE) 2\
-		> hex/$(addsuffix _instr_2.hex,$@)
-	python3 $(RUNTIME_PATH)/python_script/makehex_8files.py $< $(RAM_SIZE) 3\
-		> hex/$(addsuffix _instr_3.hex,$@)
-	python3 $(RUNTIME_PATH)/python_script/makehex_8files.py $< $(RAM_SIZE) 4\
-		> hex/$(addsuffix _data_0.hex,$@)
-	python3 $(RUNTIME_PATH)/python_script/makehex_8files.py $< $(RAM_SIZE) 5\
-		> hex/$(addsuffix _data_1.hex,$@)
-	python3 $(RUNTIME_PATH)/python_script/makehex_8files.py $< $(RAM_SIZE) 6\
-		> hex/$(addsuffix _data_2.hex,$@)
-	python3 $(RUNTIME_PATH)/python_script/makehex_8files.py $< $(RAM_SIZE) 7\
-		> hex/$(addsuffix _data_3.hex,$@)
-	python3 $(RUNTIME_PATH)/python_script/makebin.py $< $(RAM_SIZE) \
-		hex/$(addsuffix .bin,$@)
+# 	python3 $(RUNTIME_PATH)/python_script/makehex_8files.py $< $(RAM_SIZE) 0\
+# 		> hex/$(addsuffix _instr_0.hex,$@)
+# 	python3 $(RUNTIME_PATH)/python_script/makehex_8files.py $< $(RAM_SIZE) 1\
+# 		> hex/$(addsuffix _instr_1.hex,$@)
+# 	python3 $(RUNTIME_PATH)/python_script/makehex_8files.py $< $(RAM_SIZE) 2\
+# 		> hex/$(addsuffix _instr_2.hex,$@)
+# 	python3 $(RUNTIME_PATH)/python_script/makehex_8files.py $< $(RAM_SIZE) 3\
+# 		> hex/$(addsuffix _instr_3.hex,$@)
+# 	python3 $(RUNTIME_PATH)/python_script/makehex_8files.py $< $(RAM_SIZE) 4\
+# 		> hex/$(addsuffix _data_0.hex,$@)
+# 	python3 $(RUNTIME_PATH)/python_script/makehex_8files.py $< $(RAM_SIZE) 5\
+# 		> hex/$(addsuffix _data_1.hex,$@)
+# 	python3 $(RUNTIME_PATH)/python_script/makehex_8files.py $< $(RAM_SIZE) 6\
+# 		> hex/$(addsuffix _data_2.hex,$@)
+# 	python3 $(RUNTIME_PATH)/python_script/makehex_8files.py $< $(RAM_SIZE) 7\
+# 		> hex/$(addsuffix _data_3.hex,$@)
+# 	python3 $(RUNTIME_PATH)/python_script/makebin.py $< $(RAM_SIZE) \
+# 		hex/$(addsuffix .bin,$@)
 #	cp hex/firmware.hex /home/lijunnan/share/firmware.hex
 #	cp hex/firmware.bin /home/lijunnan/share/firmware.bin
-	cp hex/firmware.hex ../iCore_Controller/firmware.hex
+	cp hex/firmware.hex ../../../../FL-M32_Remote_Controller/firmware.hex
 ##############################################################################
 
 ##############################################################################
