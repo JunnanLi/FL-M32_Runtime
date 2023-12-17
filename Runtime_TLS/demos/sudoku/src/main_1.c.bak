@@ -1,0 +1,674 @@
+// #include "firmware.h"
+#include <stdio.h>
+
+//#define TEST_S_INTER_EXACT 1
+//#define TEST_S_MAYBE 1
+
+/** global variability */
+int matrix_exact[9][9] = {	{1, 0, 8, 6, 0, 0, 0, 0, 7},
+							{0, 0, 0, 5, 8, 4, 0, 0, 0},
+							{3, 0, 5, 1, 0, 0, 0, 0, 0},
+							{6, 2, 1, 0, 0, 0, 0, 7, 0},
+							{0, 7, 0, 0, 5, 0, 0, 6, 0},
+							{0, 5, 0, 0, 0, 0, 9, 8, 1},
+							{0, 0, 0, 0, 0, 8, 7, 0, 6},
+							{0, 0, 0, 7, 1, 5, 0, 0, 0},
+							{7, 0, 0, 0, 0, 3, 8, 0, 5}};
+int matrix_maybe[9][9][9] = {0};
+int matrix_maybe_num[9][9] = {0};
+
+int check_i, check_j;
+int count = 0;
+int tag;
+int loop;
+
+/** [0][] is for row, [1][] is for column, [2] is for 3x3 matrix */
+int matrix_maybe_countOfNum[3][9][9] = {0};
+
+static void cal_matrix_maybe( void ){
+	/** calculate all possible numbers for each location */
+	for (int i = 0; i < 9; ++i){
+		for (int j = 0; j < 9; ++j){
+			if(matrix_exact[i][j] == 0){
+				/** check the row */
+				for (int column = 0; column < 9; ++column){
+					if((j != column) && (matrix_exact[i][column] != 0)){
+						if(matrix_maybe[i][j][matrix_exact[i][column]-1] == 1){
+							matrix_maybe[i][j][matrix_exact[i][column]-1] = 0;
+							matrix_maybe_num[i][j]--;
+						}
+					}
+				}
+				/** check the column */
+				for (int row = 0; row < 9; ++row){
+					if((i != row) && (matrix_exact[row][j] != 0)){
+						if(matrix_maybe[i][j][matrix_exact[row][j]-1] == 1){
+							matrix_maybe[i][j][matrix_exact[row][j]-1] = 0;
+							matrix_maybe_num[i][j]--;
+						}
+					}
+				}
+				/** check the small 3x3 */
+				check_i = i - (i%3);
+				check_j = j - (j%3);
+				for (int row = 0; row < 3; ++row){
+					for (int column = 0; column < 3; ++column){
+						if(((i != (row+check_i)) || (j != (column+check_j))) && (matrix_exact[check_i+row][check_j+column] != 0)){
+							if(matrix_maybe[i][j][matrix_exact[check_i+row][check_j+column]-1] == 1){
+								matrix_maybe[i][j][matrix_exact[check_i+row][check_j+column]-1] = 0;
+								matrix_maybe_num[i][j]--;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+static void print_matrix_maybe(int x, int y){
+	printf("====print_matrix_maybe====\n");
+	int i, j;
+	for (i = x; i < (x+3); ++i)
+		for(j = y; j < (y+3); j++){
+			printf("*******i=%d, j=%d******\n", x, y);
+			for(int z =0; z <9; z ++){
+				if(matrix_maybe[i][j][z] == 1)
+					printf("%d,", z+1);
+				else
+					printf("%d,", 0);
+			}
+			printf("\n");
+		}
+}
+
+static void print_matrix_extract(void){
+	printf("***after_exact***i=%d, count=%d***\n", loop, count);
+	// output the intermediate results
+	for (int i = 0; i < 9; ++i){
+		printf("%d %d %d %d %d %d %d %d %d\n", matrix_exact[i][0], matrix_exact[i][1],
+			matrix_exact[i][2], matrix_exact[i][3], matrix_exact[i][4], matrix_exact[i][5],
+			matrix_exact[i][6], matrix_exact[i][7], matrix_exact[i][8]);
+	}
+	printf("===========================\n\n");
+}
+static void print_matrix_maybe_num(void){
+	printf("*********matrix_maybe_num**********\n");
+	for (int i = 0; i < 9; ++i){
+		printf("%d %d %d %d %d %d %d %d %d\n", matrix_maybe_num[i][0], matrix_maybe_num[i][1],
+			matrix_maybe_num[i][2], matrix_maybe_num[i][3], matrix_maybe_num[i][4], 
+			matrix_maybe_num[i][5],matrix_maybe_num[i][6], matrix_maybe_num[i][7], 
+			matrix_maybe_num[i][8]);
+	}
+}
+
+static void exclude_possbile_i(int input_i, int num, int *exclude_num_1, int *exclude_num_2, int *temp_j){
+	int temp_possible_1[3], temp_possible_2[3];
+	for(int x=0; x <3; x++){
+		temp_possible_1[x] = -1;
+		temp_possible_2[x] = -1;
+	}
+	for(int j = 0; j < 3; j++){
+		for(check_i = 0; check_i < 3; check_i++)
+			for(check_j =  0; check_j < 3; check_j++)
+				if((matrix_exact[input_i*3+check_i][j*3+check_j]== 0) && (matrix_maybe[input_i*3+check_i][j*3+check_j][num] == 1)){
+					if(temp_possible_1[j] == -1)
+						temp_possible_1[j] = input_i*3+check_i;
+					else if(temp_possible_1[j] == (input_i*3+check_i))
+						;
+					else if(temp_possible_2[j] == -1)
+						temp_possible_2[j] = input_i*3+check_i;
+					else if(temp_possible_2[j] == (input_i*3+check_i))
+						;
+					else{
+						temp_possible_1[j] = -2;
+						temp_possible_2[j] = -2;
+					}
+				}
+	}
+
+	if((temp_possible_1[0] >= 0) && (temp_possible_2[0] >= 0) && 
+		(temp_possible_1[1] == temp_possible_1[0]) && 
+		(temp_possible_2[1] == temp_possible_2[0])){
+			*exclude_num_1 = temp_possible_1[0];
+			*exclude_num_2 = temp_possible_2[0];
+			*temp_j = 6;
+	}
+	else if((temp_possible_1[0] >= 0) && (temp_possible_2[0] >= 0) && 
+		(temp_possible_1[2] == temp_possible_1[0]) && 
+		(temp_possible_2[2] == temp_possible_2[0])){
+			*exclude_num_1 = temp_possible_1[0];
+			*exclude_num_2 = temp_possible_2[0];
+			*temp_j = 3;
+	}
+	else if((temp_possible_1[1] >= 0) && (temp_possible_2[1] >= 0) && 
+		(temp_possible_1[1] == temp_possible_1[2]) && 
+		(temp_possible_2[1] == temp_possible_2[2])){
+			*exclude_num_1 = temp_possible_1[1];
+			*exclude_num_2 = temp_possible_2[1];
+			*temp_j = 0;
+	}
+	else{
+		*exclude_num_1 = -2;
+		*exclude_num_2 = -2;
+	}
+}
+
+
+static void exclude_possbile_j(int input_j, int num, int *exclude_num_1, int *exclude_num_2, int *temp_i){
+	int temp_possible_1[3], temp_possible_2[3];
+	for(int x=0; x <3; x++){
+		temp_possible_1[x] = -1;
+		temp_possible_2[x] = -1;
+	}
+	for(int i = 0; i < 3; i++){
+		for(check_i = 0; check_i < 3; check_i++)
+			for(check_j =  0; check_j < 3; check_j++)
+				if((matrix_exact[i*3+check_i][input_j*3+check_j]== 0) && (matrix_maybe[i*3+check_i][input_j*3+check_j][num] == 1)){
+					if(temp_possible_1[i] == -1)
+						temp_possible_1[i] = input_j*3+check_j;
+					else if(temp_possible_1[i] == (input_j*3+check_j))
+						;
+					else if(temp_possible_2[i] == -1)
+						temp_possible_2[i] = input_j*3+check_j;
+					else if(temp_possible_2[i] == (input_j*3+check_j))
+						;
+					else{
+						temp_possible_1[i] = -2;
+						temp_possible_2[i] = -2;
+					}
+				}
+	}
+
+	if((temp_possible_1[0] >= 0) && (temp_possible_2[0] >= 0) && 
+		(temp_possible_1[1] == temp_possible_1[0]) && 
+		(temp_possible_2[1] == temp_possible_2[0])){
+			*exclude_num_1 = temp_possible_1[0];
+			*exclude_num_2 = temp_possible_2[0];
+			*temp_i = 6;
+	}
+	else if((temp_possible_1[0] >= 0) && (temp_possible_2[0] >= 0) && 
+		(temp_possible_1[2] == temp_possible_1[0]) && 
+		(temp_possible_2[2] == temp_possible_2[0])){
+			*exclude_num_1 = temp_possible_1[0];
+			*exclude_num_2 = temp_possible_2[0];
+			*temp_i = 3;
+	}
+	else if((temp_possible_1[1] >= 0) && (temp_possible_2[1] >= 0) && 
+		(temp_possible_1[1] == temp_possible_1[2]) && 
+		(temp_possible_2[1] == temp_possible_2[2])){
+			*exclude_num_1 = temp_possible_1[1];
+			*exclude_num_2 = temp_possible_2[1];
+			*temp_i = 0;
+	}
+	else{
+		*exclude_num_1 = -2;
+		*exclude_num_2 = -2;
+	}
+}
+
+static void cal_countOfnum_matrix_maybe(void){
+	for(int i = 0; i <9; i++){
+		for(int num = 0; num < 9; num++){
+			matrix_maybe_countOfNum[0][i][num] = 0;
+			for(int j = 0; j < 9; j++){
+				if(matrix_exact[i][j] == (num+1)){
+					matrix_maybe_countOfNum[0][i][num] = 0;
+					break;
+				}
+				else if((matrix_exact[i][j] == 0) && (matrix_maybe[i][j][num] == 1))
+					matrix_maybe_countOfNum[0][i][num]++;
+				else{}
+			}
+		}
+	}
+	for(int j = 0; j < 9; j++){
+		for(int num = 0; num < 9; num++){
+			matrix_maybe_countOfNum[1][j][num] = 0;
+			for(int i = 0; i < 9; i++){
+				if(matrix_exact[i][j] == (num+1)){
+					matrix_maybe_countOfNum[1][j][num] = 0;
+					break;
+				}
+				else if((matrix_exact[i][j] == 0) && (matrix_maybe[i][j][num] == 1))
+					matrix_maybe_countOfNum[1][j][num]++;
+				else{}
+			}
+		}
+	}
+	for(int i = 0; i <9; i++){
+		for(int num = 0; num < 9; num++){
+			matrix_maybe_countOfNum[2][i][num] = 0;
+			for(int j = 0; j < 9; j++){
+				if(matrix_exact[(i/3)*3+j/3][(i%3)*3+j%3] == (num+1)){
+					matrix_maybe_countOfNum[2][i][num] = 0;
+					break;
+				}
+				else if((matrix_exact[(i/3)*3+j/3][(i%3)*3+j%3] == 0) && 
+					(matrix_maybe[(i/3)*3+j/3][(i%3)*3+j%3][num] == 1))
+						matrix_maybe_countOfNum[2][i][num]++;
+				else{}
+			}
+		}
+	}
+}
+
+// static void printf_countOfnum_matrix_maybe(void){
+// 	for(int i = 0; i < 3; i++){
+// 		for(int j = 0; j <9 ; j++)
+// 			for(int num = 0; num < 9; num++)
+// 				printf("matrix[%d][%d][%d]=%d\n", i, j, num, matrix_maybe_countOfNum[i][j][num]);
+// 		printf("=========\n");
+// 	}
+// }
+
+static void exclude_pair_matrix_maybe(void){
+	for(int i = 0; i <9; i++){
+		for(int num = 0; num < 8; num++){
+			if(matrix_maybe_countOfNum[0][i][num] == 2){
+				int pair_tag = 0;
+				int pair_i[2] = {0};
+				int pair_j[2] = {0};
+				for(int num_2 = (num+1); num_2 < 9; num_2++){
+					if(matrix_maybe_countOfNum[0][i][num_2] == 2){
+						/** check the position */
+						for(int j = 0; j < 9; j++)
+							if((matrix_exact[i][j] == 0) && (matrix_maybe[i][j][num] == 1) && 
+								(matrix_maybe[i][j][num_2] == 1)){
+								pair_i[pair_tag] = i; 
+								pair_j[pair_tag] = j;
+								pair_tag++;
+							}
+						if(pair_tag == 2){
+							matrix_maybe_num[pair_i[0]][pair_j[0]] = 2;
+							matrix_maybe_num[pair_i[1]][pair_j[1]] = 2;
+							for(int num_3 = 0; num_3 < 9; num_3++){
+								if((num != num_3) && (num_2 != num_3)){
+									matrix_maybe[pair_i[0]][pair_j[0]][num_3] = 0;
+									matrix_maybe[pair_i[1]][pair_j[1]][num_3] = 0;
+								}
+							}
+						}
+						pair_tag = 0;
+					}
+				}
+			}
+		}
+	}
+
+
+	for(int j = 0; j <9; j++){
+		for(int num = 0; num < 8; num++){
+			if(matrix_maybe_countOfNum[1][j][num] == 2){
+				int pair_tag = 0;
+				int pair_i[2] = {0};
+				int pair_j[2] = {0};
+				for(int num_2 = (num+1); num_2 < 9; num_2++){
+					if(matrix_maybe_countOfNum[1][j][num_2] == 2){
+						/** check the position */
+						for(int i = 0; i < 9; i++)
+							if((matrix_exact[i][j] == 0) && (matrix_maybe[i][j][num] == 1) && 
+								(matrix_maybe[i][j][num_2] == 1)){
+								pair_i[pair_tag] = i; 
+								pair_j[pair_tag] = j;
+								pair_tag++;
+							}
+						if(pair_tag == 2){
+							matrix_maybe_num[pair_i[0]][pair_j[0]] = 2;
+							matrix_maybe_num[pair_i[1]][pair_j[1]] = 2;
+							for(int num_3 = 0; num_3 < 9; num_3++){
+								if((num != num_3) && (num_2 != num_3)){
+									matrix_maybe[pair_i[0]][pair_j[0]][num_3] = 0;
+									matrix_maybe[pair_i[1]][pair_j[1]][num_3] = 0;
+								}
+							}
+						}	
+						pair_tag = 0;
+					}
+				}
+			}
+		}
+	}
+
+
+
+	for(int i = 0; i <9; i++){
+		for(int num = 0; num < 8; num++){
+			if(matrix_maybe_countOfNum[2][i][num] == 2){
+				int pair_tag = 0;
+				int pair_i[2] = {0};
+				int pair_j[2] = {0};
+				for(int num_2 = (num+1); num_2 < 9; num_2++){
+					if(matrix_maybe_countOfNum[2][i][num_2] == 2){
+						/** check the position */
+						for(int j = 0; j < 9; j++)
+							if((matrix_exact[(i/3)*3+j/3][(i%3)*3+j%3] == 0) 
+								&& (matrix_maybe[(i/3)*3+j/3][(i%3)*3+j%3][num] == 1) && 
+								(matrix_maybe[(i/3)*3+j/3][(i%3)*3+j%3][num_2] == 1)){
+								pair_i[pair_tag] = (i/3)*3+j/3; 
+								pair_j[pair_tag] = (i%3)*3+j%3;
+								pair_tag++;
+							}
+						if(pair_tag == 2){
+							matrix_maybe_num[pair_i[0]][pair_j[0]] = 2;
+							matrix_maybe_num[pair_i[1]][pair_j[1]] = 2;
+							for(int num_3 = 0; num_3 < 9; num_3++){
+								if((num != num_3) && (num_2 != num_3)){
+									matrix_maybe[pair_i[0]][pair_j[0]][num_3] = 0;
+									matrix_maybe[pair_i[1]][pair_j[1]][num_3] = 0;
+								}
+							}
+						}
+						pair_tag = 0;
+					}
+				}
+			}
+		}
+	}
+}
+
+
+// int mainRISCVshudu (void){
+int main (void){
+	int exclude_num_1;
+	int exclude_num_2;
+	int possible_i = -1;
+	int possible_j = -1;
+	int i,j,z;
+
+	int temp_i, temp_j;
+
+	/** read input.text */
+	// FILE *fp;
+	// fp = fopen("input.txt", "r");
+	// if(fp == NULL){
+	// 	printf("error!\n");
+	// 	return 0;
+	// }
+
+	// for (int i = 0; i < 9; ++i){
+	// 	fscanf(fp, "%d %d %d %d %d %d %d %d %d", &matrix_exact[i][0], &matrix_exact[i][1], &matrix_exact[i][2], &matrix_exact[i][3], &matrix_exact[i][4], &matrix_exact[i][5],	&matrix_exact[i][6], &matrix_exact[i][7], &matrix_exact[i][8]);
+	// }
+	// fclose(fp);
+
+	/** count the number of non-zero */
+	for (i = 0; i < 9; ++i){
+		for (j = 0; j < 9; ++j){
+			if(matrix_exact[i][j] != 0){	
+				count++;
+				matrix_maybe_num[i][j] = 1;
+			}
+			else {
+				for (z = 0; z < 9; ++z){
+					matrix_maybe[i][j][z] = 1;
+				}
+				matrix_maybe_num[i][j] = 9;
+			}
+		}
+	}
+	printf("count: %d\n", count);
+
+	/** calculate matrix */
+	// for(loop =0; loop <1000; loop++){
+	for(loop =0; loop <10; loop++){
+	//while(count < 81){
+		printf("loop: %d\n", loop);
+		cal_matrix_maybe();
+
+#ifdef TEST_S_MAYBE
+	print_matrix_maybe(3, 3);
+#endif
+
+		/** Exclude impossible results in six cases:
+		*	1) the matrix_maybe_num == 1, means one exact number;
+		*	2) the number is possible occured in one location in the 1x9 row
+		*	3) the number is possible occured in one location in the 9x1 column
+		*	4) the number is possible occured in one location in the 3x3 matrix
+		*	5) Excluding the impossible number by checking one row/column
+		*	6) Excluding the impossible number by checking two row/column
+		*/
+		/** check the first case (matrix_maybe_num == 1) */
+		for (i = 0; i < 9; ++i){
+			for (j = 0; j < 9; ++j){
+				if((matrix_maybe_num[i][j] == 1)&&(matrix_exact[i][j] == 0)){
+					for (z = 0; z < 9; ++z){
+						if(matrix_maybe[i][j][z] == 1){
+							matrix_exact[i][j] = z+1;
+							count++;				
+							cal_matrix_maybe();
+						}
+					}
+				}
+			}
+		}
+
+#ifdef TEST_S_INTER_EXACT
+		print_matrix_extract();
+		print_matrix_maybe_num();
+#endif
+
+		/** check the second case (row) */
+		for (i = 0; i < 9; ++i){
+			for (j = 0; j < 9; ++j){
+				if(matrix_exact[i][j] == 0){
+					for(z = 0; z < 9; ++z){
+						if(matrix_maybe[i][j][z] == 1){
+							tag = 1;
+
+							for (int column = 0; column < 9; ++column){
+								if ((j != column) && 
+									(((matrix_exact[i][column] == 0) && (matrix_maybe[i][column][z] == 1)) ||
+									(matrix_exact[i][column] == (z+1))) ){
+										tag = 0;
+										break;
+								}
+							}
+							if(tag == 1){
+								//printf("i=%d,j=%d, matrix_exact[i][j] =%d\n", i,j,matrix_exact[i][j]);
+								matrix_exact[i][j] = z+1;
+								count++;
+								matrix_maybe_num[i][j] = 1;
+								cal_matrix_maybe();
+								//printf("i=%d,j=%d,z=%d\n", i,j,z);
+								//printf("i=%d,j=%d, matrix_exact[i][j] =%d\n", i,j,matrix_exact[i][j]);
+							}
+						}
+					}
+				}
+			}
+		}
+
+	
+
+		/** check the third case (column) */
+		for (i = 0; i < 9; ++i){
+			for (j = 0; j < 9; ++j){
+				if(matrix_exact[i][j] == 0){
+					for(z = 0; z < 9; ++z){
+						if(matrix_maybe[i][j][z] == 1){
+							tag = 1;
+
+							for (int row = 0; row < 9; ++row){
+								if((i != row) && 
+									(((matrix_exact[row][j] == 0) && (matrix_maybe[row][j][z] == 1)) ||
+									(matrix_exact[row][j] == (z+1))) ){
+										tag = 0;
+										break;
+								}
+							}
+							if(tag == 1){
+								matrix_exact[i][j] = z+1;
+								count++;
+								matrix_maybe_num[i][j] = 1;
+								cal_matrix_maybe();
+							}
+						}
+					}
+				}
+
+			}
+		}
+
+
+		/** check the forth case (3x3 matrix) */
+		for (i = 0; i < 9; ++i){
+			for (j = 0; j < 9; ++j){
+				if(matrix_exact[i][j] == 0){
+					for(z = 0; z < 9; ++z){
+						if(matrix_maybe[i][j][z] == 1){
+							tag = 1;
+
+							check_i = i - (i%3);
+							check_j = j - (j%3);
+							for (int row = 0; row < 3; ++row){
+								for (int column = 0; column < 3; ++column){
+
+									if(((i != (row+check_i)) || (j != (column+check_j))) && 
+										(((matrix_exact[check_i+row][check_j+column] == 0) 
+											&& (matrix_maybe[check_i+row][check_j+column][z] == 1)) ||
+										(matrix_exact[check_i+row][check_j+column] == (z+1))) ){
+											tag = 0;
+											break;
+									}
+								}
+							}
+							if(tag == 1){
+								matrix_exact[i][j] = z+1;
+								count++;
+								matrix_maybe_num[i][j] = 1;
+								cal_matrix_maybe();
+							}
+						}
+					}
+				}
+
+#ifdef TEST_S
+				if(i==0){
+					print_matrix_extract();
+				}	
+#endif
+			}
+		}
+		/** check the fifth case (the possible num is in one row/column of 3x3 matrix);
+		*		1) check every 3x3 matrix
+		*		2) check every number in each 3x3 matrix;
+		*/
+		for (i = 0; i < 3; ++i){
+			for (j = 0; j < 3; ++j){
+				for (int num = 0; num < 9; ++num){
+					possible_i = -1;
+					possible_j = -1;
+					for(check_i = 0; check_i < 3; check_i++){
+						for(check_j = 0; check_j < 3; check_j++){
+							if ((matrix_maybe[ i*3+check_i ][ j*3+check_j ][ num ] == 1) &&
+								(matrix_exact[ i*3+check_i ][ j*3+check_j ] == 0)){
+								/** initial case*/
+								if((possible_i == -1) && (possible_i == -1)){
+									possible_i = i*3+check_i;
+									possible_j = j*3+check_j;
+								}
+								/** >0 */
+								else{
+								 	if((possible_i < 0) || (possible_i != (i*3+check_i))){
+								 		possible_i = -2;
+								 	}
+								 	if((possible_j < 0) || (possible_j != (j*3+check_j))){
+								 		possible_j = -2;
+								 	}
+								}
+							}
+						}
+					}
+					/**update current row */
+					if( possible_i > 0 ){
+						for(int y = 0; y < 9; y++){
+							if( (( y < j*3 ) || ( y >= j*3 +3)) && (matrix_exact[possible_i][y] == 0) && 
+								(matrix_maybe[possible_i][y][num] == 1)){
+								matrix_maybe[possible_i][y][num] = 0;
+								matrix_maybe_num[possible_i][y]--;
+							}
+						}
+					}
+					
+					/** update current column */
+					if(possible_j > 0){
+						for(int x = 0; x < 9; x++){
+							if( (( x < i*3 ) || ( x >= i*3 +3)) && (matrix_exact[x][possible_j] == 0) && 
+								(matrix_maybe[x][possible_j][num] == 1)){
+								matrix_maybe[x][possible_j][num] = 0;
+								matrix_maybe_num[x][possible_j]--;
+							}
+						}
+					}
+					
+				}
+			}
+		}
+
+		/** check the six case (two row/column) */
+		/** check the row 3x3 matrix */
+		for (i = 0; i < 3; ++i){
+			for (int num = 0; num < 9; ++num){
+				exclude_possbile_i(i, num, &exclude_num_1, &exclude_num_2, &temp_j);
+
+				if(exclude_num_1 >= 0){
+					for(j = temp_j; j < (temp_j+3); j++){
+						if((matrix_exact[exclude_num_1][j] == 0) && 
+							(matrix_maybe[exclude_num_1][j][num] == 1)){
+								matrix_maybe[exclude_num_1][j][num] = 0;
+								matrix_maybe_num[exclude_num_1][j]--;
+						}
+						if((matrix_exact[exclude_num_2][j] == 0) && 
+							(matrix_maybe[exclude_num_2][j][num] == 1)){
+								matrix_maybe[exclude_num_2][j][num] = 0;
+								matrix_maybe_num[exclude_num_2][j]--;
+						}
+					}
+				}
+			}
+		}
+		// */
+		
+
+		/** check the column 3x3 matrix */
+		for (j = 0; j < 3; ++j){
+			for (int num = 0; num < 9; ++num){
+				exclude_possbile_j(j, num, &exclude_num_1, &exclude_num_2, &temp_i);
+
+				if(exclude_num_1 >= 0){
+					for(i = temp_i; i < (temp_i+3); i++){
+						if((matrix_exact[i][exclude_num_1] == 0) && 
+							(matrix_maybe[i][exclude_num_1][num] == 1)){
+								matrix_maybe[i][exclude_num_1][num] = 0;
+								matrix_maybe_num[i][exclude_num_1]--;
+						}
+						if((matrix_exact[i][exclude_num_2] == 0) && 
+							(matrix_maybe[i][exclude_num_2][num] == 1)){
+								matrix_maybe[i][exclude_num_2][num] = 0;
+								matrix_maybe_num[i][exclude_num_2]--;
+						}
+					}
+				}
+			}
+		}
+
+		/** check the seventh case (two locations can only put two numbers) */
+		/** check the row 3x3 matrix */
+		cal_countOfnum_matrix_maybe();
+		exclude_pair_matrix_maybe();
+
+#ifdef TEST_S_EXACT
+		print_matrix_extract();
+		print_matrix_maybe_num();
+#endif
+	}
+
+	/** output results */
+	print_matrix_extract();
+	print_matrix_maybe_num();
+
+	while(1){
+	}
+	
+	return 0;
+}
