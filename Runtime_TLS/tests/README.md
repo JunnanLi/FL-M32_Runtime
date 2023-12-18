@@ -6,8 +6,8 @@ FL-M32 Tests 包含了SoC相关测试用例，目前主要包含指令集测试�
 
 ## 测试用例
 
-[coremark](https://gitee.com/lixuan-abc/fl-m32_-tests/tree/master/coremark) 是Coremakr基准测试程序.
-[isa](https://gitee.com/lixuan-abc/fl-m32_-tests/tree/master/isa) 是IM指令集测试程序.
+[coremark](https://github.com/JunnanLi/FL-M32_Runtime/tree/main/Runtime_TLS/tests/coremark) 是Coremakr基准测试程序.
+[isa](https://github.com/JunnanLi/FL-M32_Runtime/tree/main/Runtime_TLS/tests/isa) 是IM指令集测试程序.
 
 ## 更新说明
 * 2023/4/08：提交测试用例第一版
