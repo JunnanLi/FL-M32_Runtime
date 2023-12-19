@@ -100,7 +100,13 @@ MAIN_RETURN_TYPE main(int argc, char *argv[]) {
 #endif
 
 	//* test, added by JunnanLi;
-	ee_printf("system boot finished!\n");
+	ee_printf("system boot finished!\n\r");
+
+	//* test start_time/stop_time;
+	// start_time();
+	// stop_time();
+	// while(1){
+	// }
 
 	ee_u16 i,j=0,num_algorithms=0;
 	ee_s16 known_id=-1,total_errors=0;
@@ -298,7 +304,7 @@ MAIN_RETURN_TYPE main(int argc, char *argv[]) {
 	// ee_printf("Total ticks      : %lu\n",(ee_u32)total_time);
 	//* modified by JunnanLi;
 	ee_printf("CoreMark Size    : %d\n",(ee_u32)results[0].size);
-	ee_printf("Total ticks      : %d\n",(ee_u32)total_time);
+	ee_printf("Total time in ms : %d\n",(ee_u32)total_time);
 #if HAS_FLOAT
 	ee_printf("Total time (secs): %f\n",time_in_secs(total_time));
 	if (time_in_secs(total_time) > 0)
